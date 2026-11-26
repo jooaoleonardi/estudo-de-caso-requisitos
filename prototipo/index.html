@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Agendamento de Coleta de Entulho · Vila Modelo</title>
+    <meta
+      name="description"
+      content="Protótipo navegável e fictício de um serviço público digital: agendamento de coleta de entulho da Prefeitura de Vila Modelo."
+    />
+    <meta name="theme-color" content="#0d4f43" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="css/estilo.css" />
+  </head>
+  <body>
+    <a class="pular" href="#conteudo">Ir para o conteúdo</a>
+    <p class="faixa-ficticia">Protótipo de estudo de caso. Serviço, órgão e dados são fictícios.</p>
+    <header class="topo">
+      <div class="topo-in">
+        <a class="marca" href="#/" aria-label="Prefeitura de Vila Modelo, página inicial">
+          <svg class="marca-sinal" viewBox="0 0 40 40" aria-hidden="true" focusable="false">
+            <rect width="40" height="40" rx="9" fill="#f0b45a" />
+            <path d="M6 31V19L20 8l14 11v12z" fill="#0d4f43" />
+            <path d="M15 31v-9a5 5 0 0 1 10 0v9z" fill="#f0b45a" />
+            <path d="M3 31h34" stroke="#0d4f43" stroke-width="3" stroke-linecap="round" />
+          </svg>
+          <span class="marca-txt">
+            <strong>Vila Modelo</strong>
+            <span>Prefeitura · Serviços digitais</span>
+          </span>
+        </a>
+        <nav class="menu" aria-label="Principal">
+          <ul>
+            <li><a href="#/" data-grupo="inicio">Início</a></li>
+            <li><a href="#/solicitar" data-grupo="solicitar">Solicitar</a></li>
+            <li><a href="#/acompanhar" data-grupo="acompanhar">Acompanhar</a></li>
+            <li><a href="#/cancelar" data-grupo="cancelar">Cancelar ou reagendar</a></li>
+            <li><a href="#/consulta" data-grupo="consulta">Consulta pública</a></li>
+            <li>
+              <a class="menu-atendente" href="#/atendente" data-grupo="atendente"
+                >Área do atendente</a
+              >
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main id="conteudo" class="conteudo"></main>
+    <p id="anunciador" class="so-leitor" role="status" aria-live="polite"></p>
+    <footer class="rodape">
+      <div class="rodape-in">
+        <p>
+          Estudo de caso de análise de requisitos. Nenhum órgão ou dado real. O estado fica apenas
+          no seu navegador.
+        </p>
+        <button type="button" class="botao botao--sec botao--peq" id="btn-reiniciar">
+          Restaurar dados de exemplo
+        </button>
+      </div>
+    </footer>
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>
