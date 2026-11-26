@@ -22,39 +22,39 @@ As mensagens abaixo são **exatas**: o protótipo e os testes usam estas frases,
 **Regra.** Um endereço só pode ter 1 solicitação ativa por vez. Ativa significa status Aguardando Triagem ou Agendada.
 
 **Detalhes de aplicação.**
-- O endereço é identificado por CEP + número + complemento, sem diferenciar maiúsculas de minúsculas nem espaços extras.
+- O endereço é um campo de texto (rua, número e bairro). Na comparação, o sistema ignora maiúsculas, acentos, pontuação e espaços extras.
 - Concluída, Recusada e Cancelada liberam o endereço.
 
 **Exemplos.**
 
-| Situação do endereço (CEP 12345-678, nº 120, sem complemento) | Nova solicitação |
-|---------------------------------------------------------------|------------------|
+| Situação do endereço "Rua das Acácias, 120, Centro" | Nova solicitação |
+|-----------------------------------------------------|------------------|
 | Nenhuma solicitação anterior | Permitida |
 | 1 em Aguardando Triagem | Bloqueada |
 | 1 em Agendada | Bloqueada |
 | 1 Concluída | Permitida |
 | 1 Recusada ou Cancelada | Permitida |
-| Mesmo CEP e número, complemento "apto 2" (existia a de "apto 1" ativa) | Permitida |
+| Mesma rua digitada como "rua das acacias 120 centro" (existe ativa) | Bloqueada |
 
-**Mensagem:** `Já existe uma solicitação ativa para este endereço.`
+**Mensagem:** `Já existe uma coleta ativa para este endereço.`
 
 ---
 
 ## RN-02. Volume máximo de 3 m³
 
-**Regra.** O volume estimado deve ser maior que 0 e no máximo 3 m³, com até 1 casa decimal.
+**Regra.** O volume estimado deve ser maior que 0 e no máximo 3 m³.
 
 **Exemplos.**
 
 | Volume informado | Resultado |
 |------------------|-----------|
-| 0 | Bloqueado (campo obrigatório, ver mensagens gerais) |
+| vazio ou 0 | Bloqueado com a mensagem de campo (ver complementares) |
 | 1,5 m³ | Aceito |
-| 3,0 m³ | Aceito (limite) |
+| 3 m³ | Aceito (limite) |
 | 3,1 m³ | Bloqueado |
 | 5 m³ | Bloqueado |
 
-**Mensagem:** `O volume máximo é de 3 m³ por coleta.`
+**Mensagem:** `O volume máximo por coleta é de 3 m³.`
 
 ---
 
@@ -62,20 +62,20 @@ As mensagens abaixo são **exatas**: o protótipo e os testes usam estas frases,
 
 **Regra.** Se o cidadão marcar qualquer material proibido, a solicitação é bloqueada. Materiais proibidos: amianto, tintas e solventes, pneus, lixo domiciliar.
 
-**Materiais aceitos para marcação** (exemplos): tijolo e concreto, madeira, vidro, gesso, metal, cerâmica e azulejo, terra.
+**Materiais aceitos para marcação:** restos de construção, madeira e móveis, metais.
 
 **Exemplos.**
 
 | Materiais marcados | Resultado |
 |--------------------|-----------|
-| Tijolo e concreto | Aceito |
-| Madeira e gesso | Aceito |
-| Tijolo e pneus | Bloqueado |
+| Restos de construção | Aceito |
+| Madeira e móveis e metais | Aceito |
+| Restos de construção e pneus | Bloqueado (pneus) |
 | Tintas e solventes | Bloqueado |
-| Amianto (telhas, caixas d'água) | Bloqueado |
+| Amianto | Bloqueado |
 | Lixo domiciliar | Bloqueado |
 
-**Mensagem:** `Este material não é aceito na coleta de entulho.`
+**Mensagem:** `Este material não pode ser coletado: <material>.` O `<material>` é o nome do material proibido marcado, em minúsculas. Exemplo: `Este material não pode ser coletado: pneus.`
 
 ---
 
@@ -95,13 +95,12 @@ As mensagens abaixo são **exatas**: o protótipo e os testes usam estas frases,
 | Sexta 09/01 | Quarta 14/01 (segunda 12, terça 13, quarta 14) | Sexta 06/02 (09/01 + 30 dias cai em domingo, 08/02) |
 
 Outros casos:
-- Sábado 10/01 e domingo 11/01 nunca são oferecidos.
-- Se 15/01 já tem 20 coletas ativas, a data deixa de ser oferecida. A 21ª tentativa é recusada.
-- Cancelar ou recusar uma coleta de 15/01 libera uma vaga nesse dia.
+- Sábado e domingo nunca são oferecidos.
+- Dia com 19 coletas ativas: a 20ª ainda cabe.
+- Dia com 20 coletas ativas: a 21ª é recusada.
+- Cancelar ou recusar uma coleta libera uma vaga no dia.
 
-**Mensagens:**
-- Data fora das regras: `Data indisponível. Escolha outra data.`
-- Dia com 20 coletas: `Este dia atingiu o limite de 20 coletas. Escolha outra data.`
+**Mensagem (para qualquer data fora das regras, inclusive dia lotado):** `Escolha uma data disponível.`
 
 ---
 
@@ -113,14 +112,14 @@ Outros casos:
 
 **Detalhes de aplicação.**
 - Para o cálculo do prazo, a coleta é considerada às **08h00** da data agendada. As 24 horas são horas corridas, incluindo sábado e domingo.
-- O prazo vale para solicitações Agendadas. Em Aguardando Triagem, o cancelamento é livre.
-- Reagendar vale só para Agendada, respeita o mesmo prazo de 24 horas e a nova data segue a RN-04. O status continua Agendada.
-- Cancelada, Recusada e Concluída não podem ser canceladas nem reagendadas.
+- O prazo de 24 horas vale para o cancelamento de qualquer solicitação ativa.
+- O reagendamento vale para solicitação ativa, só 1 vez, e a nova data segue a RN-04. O status não muda.
+- Concluída, Recusada e Cancelada não podem ser canceladas nem reagendadas.
 
-**Exemplos (coleta Agendada para segunda 12/01/2026, 08h00).**
+**Exemplos de cancelamento (coleta para segunda 12/01/2026, 08h00).**
 
-| Momento da ação | Cancelar ou reagendar |
-|-----------------|-----------------------|
+| Momento da ação | Cancelar |
+|-----------------|----------|
 | Sexta 09/01, 23h59 | Permitido (56 h 01 min de antecedência) |
 | Domingo 11/01, 08h00 | Permitido (exatamente 24 h) |
 | Domingo 11/01, 08h01 | Bloqueado (23 h 59 min) |
@@ -132,8 +131,8 @@ Outros casos:
 | 1 | Bloqueado |
 
 **Mensagens:**
-- Prazo vencido: `O prazo terminou. Só é possível alterar até 24 horas antes da coleta.`
-- Segundo reagendamento: `Esta solicitação já foi reagendada uma vez.`
+- Cancelamento fora do prazo: `O cancelamento só é possível até 24 horas antes da coleta.`
+- Segundo reagendamento: `O reagendamento já foi usado nesta solicitação.`
 
 ---
 
@@ -155,8 +154,10 @@ Outros casos:
 | col-2026-000001 | Aceito: o sistema converte para maiúsculas |
 | COL-2026-999999 | Formato válido, mas pode não existir |
 
+Sequência: se o maior protocolo de 2026 é `COL-2026-000009`, o próximo é `COL-2026-000010`.
+
 **Mensagens:**
-- Formato errado: `Protocolo inválido. Use o formato COL-AAAA-NNNNNN.`
+- Formato errado: `Informe o protocolo no formato COL-AAAA-NNNNNN.`
 - Formato certo e inexistente: `Protocolo não encontrado.`
 
 ---
@@ -175,40 +176,46 @@ Outros casos:
 | `Não cabe` | 8 | Bloqueada |
 | `   curto   ` | 5 (após remover espaços) | Bloqueada |
 
-**Mensagem:** `Informe uma justificativa com pelo menos 10 caracteres.`
+**Mensagem:** `Informe a justificativa com pelo menos 10 caracteres.`
 
 ---
 
 ## RN-08. Dados mínimos e CPF mascarado
 
 **Regra.**
-- O sistema pede só: nome, CPF, telefone, endereço (CEP, número, complemento), volume, materiais e data.
-- Em qualquer consulta pública (T-02 e T-06), o CPF aparece mascarado: `***.123.456-**` (os 6 dígitos do meio visíveis, o restante oculto).
-- Consulta pública não exibe telefone nem endereço completo. Mostra apenas o bairro.
+- O sistema pede só: nome completo, CPF, endereço, volume, materiais e data. Não pede telefone nem e-mail.
+- Em qualquer consulta (T-02 e T-06), o CPF aparece mascarado: `***.123.456-**` (os 6 dígitos do meio visíveis, o restante oculto).
+- Nenhuma consulta exibe o nome do solicitante.
 
 **Exemplos.**
 
-| CPF cadastrado (fictício) | Exibido em consulta pública |
-|---------------------------|-----------------------------|
+| CPF cadastrado (fictício) | Exibido em consulta |
+|---------------------------|---------------------|
 | 987.123.456-00 | `***.123.456-**` |
 | 111.222.333-44 | `***.222.333-**` |
 
 | Dado | T-02 Acompanhar | T-06 Consulta pública |
 |------|-----------------|------------------------|
+| Protocolo, situação e data | Exibidos | Exibidos |
 | CPF | Mascarado | Mascarado |
-| Telefone | Oculto | Oculto |
-| Endereço | Completo (para conferência) | Só o bairro |
-| Nome | Primeiro nome | Oculto |
+| Nome | Oculto | Oculto |
+| Endereço, volume e materiais | Exibidos | Ocultos |
+| Motivo da recusa e histórico | Exibidos | Ocultos |
 
-**Mensagem (CPF inválido no formulário):** `CPF inválido. Confira os números digitados.`
+**Mensagem (CPF inválido no formulário):** `Informe um CPF com 11 dígitos.`
 
 ---
 
-## Mensagens gerais (não são regras de negócio)
+## Mensagens complementares de campo
+
+Não são regras de negócio. São as mensagens que o protótipo também exibe.
 
 | Situação | Mensagem |
 |----------|----------|
-| Campo obrigatório vazio | `Preencha este campo.` |
-| Volume vazio ou igual a zero | `Informe o volume da coleta.` |
-| Nenhum material marcado | `Marque ao menos um material.` |
-| Nenhuma data escolhida | `Escolha uma data para a coleta.` |
+| Nome vazio | `Informe o nome completo.` |
+| Endereço vazio | `Informe o endereço da coleta.` |
+| Volume vazio ou menor ou igual a zero | `Informe o volume em m³.` |
+| Nenhum material marcado | `Marque pelo menos um material.` |
+| CPF sem 11 dígitos | `Informe um CPF com 11 dígitos.` |
+| Protocolo fora do formato | `Informe o protocolo no formato COL-AAAA-NNNNNN.` |
+| Protocolo bem formado e inexistente | `Protocolo não encontrado.` |

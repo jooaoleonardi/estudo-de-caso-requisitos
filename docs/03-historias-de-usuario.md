@@ -1,6 +1,6 @@
 # 03. Histórias de usuário
 
-Cada cenário Gherkin leva o ID do teste previsto (`TE-xx`). Mensagens citadas estão em [04-regras-de-negocio.md](04-regras-de-negocio.md). Datas usam o calendário de 2026.
+Cada cenário Gherkin indica o teste automatizado do protótipo que o cobre (`TE-xx`, ver [06-rastreabilidade.md](06-rastreabilidade.md)) ou `sem teste automatizado ainda`. Mensagens citadas estão em [04-regras-de-negocio.md](04-regras-de-negocio.md). Datas usam o calendário de 2026.
 
 | ID | História | Persona | Tela |
 |----|----------|---------|------|
@@ -22,46 +22,65 @@ Cada cenário Gherkin leva o ID do teste previsto (`TE-xx`). Mensagens citadas e
 ```gherkin
 Funcionalidade: Solicitar coleta
 
-  Cenário: TE-01 Solicitação válida gera protocolo (caminho feliz)
-    Dado que o endereço "CEP 12345-678, nº 120" não tem solicitação ativa
+  # Teste: TE-01
+  Cenário: Solicitação válida gera protocolo (caminho feliz)
+    Dado que o endereço "Rua das Acácias, 120, Centro" não tem solicitação ativa
     E que hoje é segunda-feira, 05/01/2026
     Quando o cidadão informa volume 2,0 m³, material "tijolo e concreto" e a data 08/01/2026
     E confirma a solicitação
     Então o sistema cria a solicitação com status "Aguardando Triagem"
     E exibe o protocolo no formato "COL-2026-NNNNNN"
 
-  Cenário: TE-02 Endereço com solicitação ativa (RN-01)
-    Dado que o endereço "CEP 12345-678, nº 120" tem uma solicitação em "Aguardando Triagem"
+  # Teste: TE-02
+  Cenário: Endereço com solicitação ativa (RN-01, regra violada)
+    Dado que o endereço "Rua das Acácias, 120, Centro" tem uma solicitação em "Aguardando Triagem"
     Quando o cidadão tenta solicitar outra coleta para o mesmo endereço
     Então o sistema bloqueia o envio
-    E exibe "Já existe uma solicitação ativa para este endereço."
+    E exibe "Já existe uma coleta ativa para este endereço."
 
-  Cenário: TE-03 Volume no limite é aceito (RN-02, borda)
-    Quando o cidadão informa o volume 3,0 m³
+  # Teste: TE-02b
+  Cenário: Endereço de solicitação cancelada está livre (RN-01, borda)
+    Dado que a solicitação anterior do endereço está "Cancelada"
+    Quando o cidadão solicita outra coleta para o mesmo endereço
+    Então o sistema aceita a solicitação
+
+  # Teste: TE-03
+  Cenário: Volume no limite é aceito (RN-02, borda)
+    Quando o cidadão informa o volume 3 m³
     Então o sistema aceita o volume
 
-  Cenário: TE-04 Volume acima do limite (RN-02, regra violada)
+  # Teste: TE-03
+  Cenário: Volume acima do limite (RN-02, regra violada)
     Quando o cidadão informa o volume 3,1 m³
     Então o sistema bloqueia o envio
-    E exibe "O volume máximo é de 3 m³ por coleta."
+    E exibe "O volume máximo por coleta é de 3 m³."
 
-  Cenário: TE-05 Material proibido (RN-03, regra violada)
-    Quando o cidadão marca os materiais "tijolo e concreto" e "pneus"
+  # Teste: TE-04
+  Cenário: Material proibido (RN-03, regra violada)
+    Quando o cidadão marca o material proibido "pneus"
     Então o sistema bloqueia o envio
-    E exibe "Este material não é aceito na coleta de entulho."
+    E exibe "Este material não pode ser coletado: pneus."
 
-  Cenário: TE-06 Datas oferecidas (RN-04)
+  # Teste: TE-05 e TE-15b
+  Cenário: Datas válidas (RN-04)
     Dado que hoje é segunda-feira, 05/01/2026
-    Quando o cidadão abre a lista de datas
-    Então a primeira data oferecida é quinta-feira, 08/01/2026
-    E a última data oferecida é quarta-feira, 04/02/2026
-    E sábados e domingos não aparecem na lista
+    Então a primeira data aceita é quinta-feira, 08/01/2026
+    E a última data aceita é quarta-feira, 04/02/2026
+    E sábado e domingo são recusados com "Escolha uma data disponível."
+    E datas antes de 3 dias úteis ou além de 30 dias são recusadas com a mesma mensagem
 
-  Cenário: TE-07 Dia com 20 coletas (RN-04, borda)
+  # Teste: TE-05
+  Cenário: 21ª coleta no dia (RN-04, borda)
     Dado que 15/01/2026 já tem 20 coletas ativas
-    Quando o cidadão abre a lista de datas
-    Então 15/01/2026 não é oferecida
-    E uma 21ª solicitação para essa data é recusada com "Este dia atingiu o limite de 20 coletas. Escolha outra data."
+    Quando o cidadão escolhe 15/01/2026
+    Então o sistema bloqueia o envio
+    E exibe "Escolha uma data disponível."
+
+  # Teste: TE-05b
+  Cenário: 20ª coleta ainda cabe (RN-04, borda)
+    Dado que 15/01/2026 já tem 19 coletas ativas
+    Quando o cidadão escolhe 15/01/2026
+    Então o sistema aceita a data
 ```
 
 ---
@@ -75,18 +94,21 @@ Funcionalidade: Solicitar coleta
 ```gherkin
 Funcionalidade: Acompanhar solicitação
 
-  Cenário: TE-08 Consulta de protocolo existente (caminho feliz)
+  # Teste: TE-11
+  Cenário: Consulta de protocolo existente (caminho feliz)
     Dado que existe a solicitação "COL-2026-000001" com status "Agendada" para 12/01/2026
     Quando o cidadão informa "COL-2026-000001"
-    Então o sistema exibe o status "Agendada" e a data 12/01/2026
+    Então o sistema exibe a situação "Agendada" e a data 12/01/2026
     E exibe o histórico de mudanças de status
     E exibe o CPF no formato "***.123.456-**"
 
-  Cenário: TE-09 Protocolo com formato inválido (RN-06, regra violada)
+  # Teste: TE-11
+  Cenário: Protocolo com formato inválido (RN-06, regra violada)
     Quando o cidadão informa "COL-26-1"
-    Então o sistema exibe "Protocolo inválido. Use o formato COL-AAAA-NNNNNN."
+    Então o sistema exibe "Informe o protocolo no formato COL-AAAA-NNNNNN."
 
-  Cenário: TE-10 Protocolo inexistente (RN-06)
+  # Teste: TE-11
+  Cenário: Protocolo inexistente (RN-06)
     Dado que "COL-2026-999999" não existe
     Quando o cidadão informa "COL-2026-999999"
     Então o sistema exibe "Protocolo não encontrado."
@@ -103,21 +125,24 @@ Funcionalidade: Acompanhar solicitação
 ```gherkin
 Funcionalidade: Cancelar ou reagendar
 
-  Cenário: TE-11 Cancelamento dentro do prazo (caminho feliz)
+  # Teste: TE-13
+  Cenário: Cancelamento dentro do prazo libera o endereço (caminho feliz)
     Dado uma solicitação "Agendada" para segunda-feira, 12/01/2026, às 08h00
     E que agora é quarta-feira, 07/01/2026, 10h00
     Quando o cidadão cancela a solicitação
     Então o status passa para "Cancelada"
-    E a vaga do dia 12/01/2026 é liberada
+    E o endereço fica livre para nova solicitação
 
-  Cenário: TE-12 Cancelamento fora do prazo (RN-05, regra violada)
+  # Teste: TE-06
+  Cenário: Cancelamento fora do prazo (RN-05, regra violada)
     Dado uma solicitação "Agendada" para segunda-feira, 12/01/2026, às 08h00
     E que agora é domingo, 11/01/2026, 08h01
     Quando o cidadão tenta cancelar
     Então o sistema bloqueia a ação
-    E exibe "O prazo terminou. Só é possível alterar até 24 horas antes da coleta."
+    E exibe "O cancelamento só é possível até 24 horas antes da coleta."
 
-  Esquema do Cenário: TE-13 Fronteira das 24 horas em horas corridas (RN-05, borda)
+  # Teste: TE-15c (domingo 08h00 e 08h01); sexta 23h59 sem teste automatizado ainda
+  Esquema do Cenário: Fronteira das 24 horas em horas corridas (RN-05, borda)
     Dado uma solicitação "Agendada" para segunda-feira, 12/01/2026, às 08h00
     E que agora é <momento>
     Quando o cidadão tenta cancelar
@@ -129,18 +154,19 @@ Funcionalidade: Cancelar ou reagendar
       | domingo 11/01, 08h00         | permitido |
       | domingo 11/01, 08h01         | bloqueado |
 
-  Cenário: TE-14 Primeiro reagendamento (RN-05, caminho feliz)
-    Dado uma solicitação "Agendada" para 12/01/2026 sem reagendamentos
-    E que o prazo de 24 horas ainda não venceu
+  # Teste: TE-06
+  Cenário: Primeiro reagendamento (RN-05, caminho feliz)
+    Dado uma solicitação ativa para 12/01/2026 sem reagendamentos
     Quando o cidadão escolhe a nova data 14/01/2026
     Então a data da solicitação passa a ser 14/01/2026
-    E o status continua "Agendada"
+    E o status não muda
 
-  Cenário: TE-15 Segundo reagendamento (RN-05, regra violada)
-    Dado uma solicitação "Agendada" que já foi reagendada uma vez
+  # Teste: TE-06 e TE-15c
+  Cenário: Segundo reagendamento (RN-05, regra violada)
+    Dado uma solicitação ativa que já foi reagendada uma vez
     Quando o cidadão tenta reagendar de novo
     Então o sistema bloqueia a ação
-    E exibe "Esta solicitação já foi reagendada uma vez."
+    E exibe "O reagendamento já foi usado nesta solicitação."
 ```
 
 ---
@@ -154,19 +180,22 @@ Funcionalidade: Cancelar ou reagendar
 ```gherkin
 Funcionalidade: Triar e aprovar
 
-  Cenário: TE-16 Fila de triagem (caminho feliz)
+  # Teste: sem teste automatizado ainda (TE-14 só confere os dados de exemplo)
+  Cenário: Fila de triagem (caminho feliz)
     Dado que existem 3 solicitações "Aguardando Triagem" criadas em horários diferentes
     Quando o atendente abre a fila
     Então vê somente solicitações "Aguardando Triagem"
     E a mais antiga aparece primeiro
 
-  Cenário: TE-17 Aprovação (caminho feliz)
+  # Teste: TE-12
+  Cenário: Aprovação (caminho feliz)
     Dado uma solicitação "Aguardando Triagem" para 15/01/2026
     Quando o atendente abre o detalhe e aprova
     Então o status passa para "Agendada"
     E a mudança é registrada no histórico com a data e a hora
 
-  Cenário: TE-18 Registro de conclusão
+  # Teste: sem teste automatizado ainda (função ainda não existe no protótipo)
+  Cenário: Registro de conclusão
     Dado uma solicitação "Agendada" cuja data de coleta já passou
     Quando o atendente registra a conclusão
     Então o status passa para "Concluída"
@@ -184,18 +213,21 @@ Funcionalidade: Triar e aprovar
 ```gherkin
 Funcionalidade: Recusar com justificativa
 
-  Cenário: TE-19 Recusa com justificativa válida (caminho feliz)
+  # Teste: TE-08
+  Cenário: Recusa com justificativa válida (caminho feliz)
     Dado uma solicitação "Aguardando Triagem"
-    Quando o atendente recusa com a justificativa "Endereço sem acesso para caminhão"
+    Quando o atendente recusa com a justificativa "Endereço fora da área."
     Então o status passa para "Recusada"
     E o cidadão vê a justificativa ao consultar o protocolo
 
-  Cenário: TE-20 Justificativa curta demais (RN-07, regra violada)
-    Quando o atendente tenta recusar com a justificativa "Não cabe"
+  # Teste: TE-08
+  Cenário: Justificativa curta demais (RN-07, regra violada)
+    Quando o atendente tenta recusar com a justificativa "curto"
     Então o sistema bloqueia a recusa
-    E exibe "Informe uma justificativa com pelo menos 10 caracteres."
+    E exibe "Informe a justificativa com pelo menos 10 caracteres."
 
-  Cenário: TE-21 Justificativa com exatamente 10 caracteres (RN-07, borda)
+  # Teste: TE-15a (regra em regras.js); pela interface, sem teste automatizado ainda
+  Cenário: Justificativa com exatamente 10 caracteres (RN-07, borda)
     Quando o atendente recusa com a justificativa "Sem acesso"
     Então o sistema aceita a recusa
     E o status passa para "Recusada"
@@ -212,20 +244,23 @@ Funcionalidade: Recusar com justificativa
 ```gherkin
 Funcionalidade: Consulta pública
 
-  Cenário: TE-22 CPF mascarado (RN-08, caminho feliz)
+  # Teste: TE-09
+  Cenário: CPF mascarado (RN-08, caminho feliz)
     Dado a solicitação "COL-2026-000001" com CPF 987.123.456-00
     Quando alguém consulta o protocolo na página pública
     Então o sistema exibe o CPF como "***.123.456-**"
     E nunca exibe o CPF completo
 
-  Cenário: TE-23 Só dados mínimos (RN-08, borda)
+  # Teste: TE-09
+  Cenário: Só dados mínimos (RN-08, borda)
     Quando alguém consulta um protocolo válido na página pública
-    Então o sistema exibe status, data e bairro
-    E não exibe nome, telefone nem endereço completo
+    Então o sistema exibe protocolo, situação, data e CPF mascarado
+    E não exibe nome, endereço, volume nem materiais
 
-  Cenário: TE-24 Protocolo inválido ou inexistente (RN-06, regra violada)
+  # Teste: sem teste automatizado ainda (a mesma busca é testada na tela T-02, em TE-11)
+  Cenário: Protocolo inválido ou inexistente (RN-06, regra violada)
     Quando alguém informa "COL-2026-1"
-    Então o sistema exibe "Protocolo inválido. Use o formato COL-AAAA-NNNNNN."
+    Então o sistema exibe "Informe o protocolo no formato COL-AAAA-NNNNNN."
     Quando alguém informa "COL-2026-999999" e ele não existe
     Então o sistema exibe "Protocolo não encontrado."
 ```

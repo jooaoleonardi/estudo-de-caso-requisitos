@@ -6,20 +6,20 @@ Cada requisito funcional (RF) aponta para a história de usuário (HU) que o ori
 
 | ID | Requisito | HU | RN |
 |----|-----------|----|----|
-| RF-01 | O sistema deve coletar apenas os dados mínimos da solicitação: nome, CPF, telefone, endereço (CEP, número e complemento), volume estimado, materiais e data desejada. | HU-01 | RN-08 |
+| RF-01 | O sistema deve coletar apenas os dados mínimos da solicitação: nome completo, CPF, endereço (rua, número e bairro), volume estimado, materiais e data desejada. | HU-01 | RN-08 |
 | RF-02 | O sistema deve recusar volume acima de 3 m³ e exigir volume maior que zero. | HU-01 | RN-02 |
 | RF-03 | O sistema deve bloquear a solicitação quando o cidadão marcar qualquer material proibido. | HU-01 | RN-03 |
 | RF-04 | O sistema deve bloquear nova solicitação para endereço que já tenha solicitação ativa. | HU-01 | RN-01 |
 | RF-05 | O sistema deve oferecer apenas datas válidas: dias úteis, a partir de 3 dias úteis, dentro de 30 dias, com menos de 20 coletas no dia. | HU-01, HU-03 | RN-04 |
 | RF-06 | O sistema deve gerar o protocolo `COL-AAAA-NNNNNN` e registrar a solicitação com status Aguardando Triagem. | HU-01 | RN-06 |
-| RF-07 | O sistema deve permitir consultar a solicitação pelo protocolo, mostrando status, data, detalhes, histórico e, se houver, a justificativa da recusa. | HU-02 | RN-06, RN-08 |
-| RF-08 | O sistema deve permitir cancelar a solicitação, respeitando o prazo de 24 horas antes da data da coleta. | HU-03 | RN-05 |
-| RF-09 | O sistema deve permitir reagendar uma solicitação Agendada, uma única vez, para uma data válida. | HU-03 | RN-05, RN-04 |
+| RF-07 | O sistema deve permitir consultar a solicitação pelo protocolo, mostrando situação, data, endereço, volume, materiais, CPF mascarado, histórico e, se houver, o motivo da recusa. | HU-02 | RN-06, RN-08 |
+| RF-08 | O sistema deve permitir cancelar uma solicitação ativa, respeitando o prazo de 24 horas antes da data da coleta. | HU-03 | RN-05 |
+| RF-09 | O sistema deve permitir reagendar uma solicitação ativa, uma única vez, para uma data válida, sem mudar o status. | HU-03 | RN-05, RN-04 |
 | RF-10 | O sistema deve listar para o atendente as solicitações Aguardando Triagem, da mais antiga para a mais recente. | HU-04 | n/a |
 | RF-11 | O sistema deve permitir ao atendente aprovar a solicitação, mudando o status para Agendada. | HU-04 | RN-04 |
 | RF-12 | O sistema deve permitir ao atendente registrar a conclusão de uma solicitação Agendada, mudando o status para Concluída. | HU-04 | n/a |
 | RF-13 | O sistema deve permitir ao atendente recusar a solicitação mediante justificativa de pelo menos 10 caracteres, mudando o status para Recusada. | HU-05 | RN-07 |
-| RF-14 | O sistema deve oferecer consulta pública por protocolo, exibindo apenas dados mínimos e o CPF mascarado. | HU-06 | RN-06, RN-08 |
+| RF-14 | O sistema deve oferecer consulta pública por protocolo, exibindo apenas protocolo, situação, data e CPF mascarado. | HU-06 | RN-06, RN-08 |
 | RF-15 | O sistema deve registrar no histórico cada mudança de status, com data e hora e o ator (Cidadão ou Atendente). | HU-02, HU-03, HU-04, HU-05 | n/a |
 
 ### Observações

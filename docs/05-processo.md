@@ -16,7 +16,8 @@ stateDiagram-v2
     [*] --> AT : Cidadão solicita (HU-01)
     AT --> AG : Atendente aprova (HU-04)
     AT --> RE : Atendente recusa com justificativa (HU-05, RN-07)
-    AT --> CA : Cidadão cancela (HU-03)
+    AT --> AT : Cidadão reagenda, 1 vez (HU-03, RN-05)
+    AT --> CA : Cidadão cancela até 24 h antes (HU-03, RN-05)
     AG --> AG : Cidadão reagenda, 1 vez (HU-03, RN-05)
     AG --> CA : Cidadão cancela até 24 h antes (HU-03, RN-05)
     AG --> CO : Atendente registra conclusão (HU-04)
@@ -30,8 +31,8 @@ stateDiagram-v2
 | (início) | Aguardando Triagem | Cidadão | Passou em RN-01, RN-02, RN-03 e RN-04; protocolo gerado (RN-06) |
 | Aguardando Triagem | Agendada | Atendente | Aprovação |
 | Aguardando Triagem | Recusada | Atendente | Justificativa com 10 ou mais caracteres (RN-07) |
-| Aguardando Triagem | Cancelada | Cidadão | Sem prazo mínimo |
-| Agendada | Agendada | Cidadão | Nova data válida (RN-04), até 24 h antes, no máximo 1 vez (RN-05) |
+| Aguardando Triagem | Cancelada | Cidadão | Até 24 h antes da data (RN-05) |
+| Aguardando Triagem ou Agendada | mesmo status | Cidadão | Reagendamento: nova data válida (RN-04), no máximo 1 vez (RN-05) |
 | Agendada | Cancelada | Cidadão | Até 24 h antes da coleta (RN-05) |
 | Agendada | Concluída | Atendente | Coleta realizada |
 
@@ -45,17 +46,17 @@ Da perspectiva do cidadão, da tela T-01 até a decisão do atendente.
 flowchart TD
     A([Início: cidadão abre T-01]) --> B[Informa dados, endereço, volume e materiais]
     B --> C{Endereço já tem<br/>solicitação ativa?}
-    C -- Sim --> C1[/"Já existe uma solicitação ativa para este endereço."/]
+    C -- Sim --> C1[/"Já existe uma coleta ativa para este endereço."/]
     C1 --> B
     C -- Não --> D{Volume maior<br/>que 3 m³?}
-    D -- Sim --> D1[/"O volume máximo é de 3 m³ por coleta."/]
+    D -- Sim --> D1[/"O volume máximo por coleta é de 3 m³."/]
     D1 --> B
     D -- Não --> E{Algum material<br/>proibido?}
-    E -- Sim --> E1[/"Este material não é aceito na coleta de entulho."/]
+    E -- Sim --> E1[/"Este material não pode ser coletado: pneus."/]
     E1 --> B
     E -- Não --> F[Sistema oferece datas válidas, RN-04]
     F --> G{Há data<br/>disponível?}
-    G -- Não --> G1[/"Data indisponível. Escolha outra data."/]
+    G -- Não --> G1[/"Escolha uma data disponível."/]
     G1 --> F
     G -- Sim --> H[Cidadão escolhe a data e confirma]
     H --> I[Sistema gera protocolo COL-AAAA-NNNNNN]
@@ -63,7 +64,10 @@ flowchart TD
     J --> K{Atendente decide<br/>em T-05}
     K -- Aprova --> L[Status: Agendada]
     K -- Recusa com justificativa --> M[Status: Recusada]
+    J --> T{Cidadão cancela<br/>ou reagenda?}
     L --> N{Cidadão cancela<br/>ou reagenda?}
+    T -- Cancela até 24 h antes --> O
+    T -- Reagenda, 1 vez --> J
     N -- Cancela até 24 h antes --> O[Status: Cancelada]
     N -- Reagenda, 1 vez --> L
     N -- Não --> P[Coleta realizada]
